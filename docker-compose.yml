@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  microservice1:
+    build: ./microservice1
+    ports:
+      - "5001:5001"
+    networks:
+      - my_network
+
+  microservice2:
+    build: ./microservice2
+    ports:
+      - "5002:5002"
+    networks:
+      - my_network
+    depends_on:
+      - microservice1
+
+networks:
+  my_network:
+    driver: bridge
