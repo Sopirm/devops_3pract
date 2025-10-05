@@ -1,22 +1,43 @@
 version: '3.8'
 
 services:
-  microservice1:
-    build: ./microservice1
+  nginx:
+    image: nginx:latest
     ports:
-      - "5001:5001"
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - microservice1
+      - microservice2
     networks:
       - my_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  microservice1:
+    image: microservice1:latest
+    networks:
+      - my_network
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
   microservice2:
-    build: ./microservice2
-    ports:
-      - "5002:5002"
+    image: microservice2:latest
     networks:
       - my_network
     depends_on:
       - microservice1
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
 
 networks:
   my_network:
-    driver: bridge
+    driver: overlay
+    attachable: true
